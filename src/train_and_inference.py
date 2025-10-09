@@ -14,7 +14,8 @@ class EngressionTrainer:
     """Trainer for EngressionNet models with early stopping."""
     
     def __init__(self, batch_size=128, learning_rate=1e-4, num_epochs=200, 
-                 m=50, patience=20, device=None):
+                 m=50, patience=20, hidden_dim=64, num_layers=3, 
+                 dropout=0.0, use_batchnorm=False, input_dim=128, device=None):
         """Initialize the trainer.
         
         Parameters
@@ -29,6 +30,16 @@ class EngressionTrainer:
             Number of epsilon samples per X_i in loss computation
         patience : int, default=20
             Number of epochs to wait for improvement before early stopping
+        hidden_dim : int, default=64
+            Dimension of hidden layers
+        num_layers : int, default=3
+            Number of hidden layers
+        dropout : float, default=0.0
+            Dropout probability
+        use_batchnorm : bool, default=False
+            Whether to use batch normalization
+        input_dim : int, default=128
+            Dimension of epsilon (Gaussian noise input)
         device : torch.device, optional
             Device for computation. If None, uses get_device()
         """
@@ -37,6 +48,11 @@ class EngressionTrainer:
         self.num_epochs = num_epochs
         self.m = m
         self.patience = patience
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+        self.dropout = dropout
+        self.use_batchnorm = use_batchnorm
+        self.input_dim = input_dim
         self.device = device if device is not None else get_device()
         
         self.training_history = {
@@ -76,7 +92,17 @@ class EngressionTrainer:
         # Initialize model if not provided
         if model is None:
             output_dim = X.shape[1]
-            model = EngressionNet(input_dim=2, output_dim=output_dim).to(self.device)
+            model = EngressionNet(
+                input_dim=self.input_dim,  # Use self.input_dim
+                output_dim=output_dim,
+                hidden_dim=self.hidden_dim,
+                num_layers=self.num_layers,
+                dropout=self.dropout,
+                use_batchnorm=self.use_batchnorm
+            ).to(self.device)
+        
+        # Store input_dim for later reference
+        self.model_input_dim = self.input_dim
         
         # Initialize optimizer
         optimizer = torch.optim.Adam(model.parameters(), lr=self.learning_rate)
@@ -139,7 +165,7 @@ class EngressionTrainer:
         return model, self.training_history
 
 
-def generate_samples(model, num_samples=1000, input_dim=2, device=None):
+def generate_samples(model, num_samples=1000, input_dim=None, device=None):
     """Generate samples from a trained engression network.
     
     Parameters
@@ -148,8 +174,9 @@ def generate_samples(model, num_samples=1000, input_dim=2, device=None):
         Trained engression network
     num_samples : int, default=1000
         Number of samples to generate
-    input_dim : int, default=2
-        Dimension of the epsilon (uniform random) input
+    input_dim : int, optional
+        Dimension of the epsilon (Gaussian noise) input.
+        If None, infers from model's input layer.
     device : torch.device, optional
         Device for computation. If None, infers from model's device
         
@@ -162,8 +189,13 @@ def generate_samples(model, num_samples=1000, input_dim=2, device=None):
         # Infer device from model's first parameter
         device = next(model.parameters()).device
     
+    if input_dim is None:
+        # Infer input_dim from model's first layer
+        input_dim = model.network[0].in_features
+    
     model.eval()
-    eps = torch.rand(num_samples, input_dim, device=device)
+    # Use standard Gaussian noise instead of uniform
+    eps = torch.randn(num_samples, input_dim, device=device)
     
     with torch.no_grad():
         samples = model(eps)
@@ -172,8 +204,9 @@ def generate_samples(model, num_samples=1000, input_dim=2, device=None):
 
 
 def train_and_generate(X, num_samples=1000, batch_size=128, learning_rate=1e-4,
-                       num_epochs=200, m=50, patience=20, input_dim=2, 
-                       verbose=True, device=None):
+                       num_epochs=200, m=50, patience=20, input_dim=128,
+                       hidden_dim=64, num_layers=3, dropout=0.0, 
+                       use_batchnorm=False, verbose=True, device=None):
     """Convenience function to train a model and generate samples.
     
     Parameters
@@ -192,8 +225,16 @@ def train_and_generate(X, num_samples=1000, batch_size=128, learning_rate=1e-4,
         Number of epsilon samples per X_i
     patience : int, default=20
         Epochs to wait for improvement before early stopping
-    input_dim : int, default=2
-        Dimension of epsilon input
+    input_dim : int, default=128
+        Dimension of epsilon (Gaussian noise input)
+    hidden_dim : int, default=64
+        Dimension of hidden layers
+    num_layers : int, default=3
+        Number of hidden layers
+    dropout : float, default=0.0
+        Dropout probability
+    use_batchnorm : bool, default=False
+        Whether to use batch normalization
     verbose : bool, default=True
         Whether to print training progress
     device : torch.device, optional
@@ -214,6 +255,11 @@ def train_and_generate(X, num_samples=1000, batch_size=128, learning_rate=1e-4,
         num_epochs=num_epochs,
         m=m,
         patience=patience,
+        hidden_dim=hidden_dim,
+        num_layers=num_layers,
+        dropout=dropout,
+        use_batchnorm=use_batchnorm,
+        input_dim=input_dim,
         device=device
     )
     

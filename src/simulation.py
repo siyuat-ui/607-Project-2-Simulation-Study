@@ -61,7 +61,7 @@ class SimulationExperiment:
             'learning_rate': 1e-4,
             'm': 50,
             'patience': 20,
-            'input_dim': 2,
+            'input_dim': 128,
         }
         if training_params is not None:
             self.training_params.update(training_params)
@@ -295,6 +295,7 @@ def run_quick_simulation(n_replications=3, sample_sizes=[100, 500],
         'batch_size': 64,
         'learning_rate': 1e-3,
         'patience': 10,
+        'input_dim': 2,  # Small input_dim for quick testing
     }
     
     # Run simulation
@@ -342,6 +343,7 @@ def run_full_simulation(n_replications=10, sample_sizes=[100, 500, 1000],
         ChiSquareGenerator(df=5),
     ]
     
+    # Full simulation uses default training params (including input_dim=128)
     # Run simulation
     sim = SimulationExperiment(
         generators=generators,

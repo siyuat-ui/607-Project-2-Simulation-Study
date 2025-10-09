@@ -110,8 +110,8 @@ def engression_loss(g, X_batch, m=5, device=None):
     batch_size, output_dim = X_batch.shape
     input_dim = g.network[0].in_features
 
-    # Generate epsilons: (batch_size, m, input_dim)
-    epsilons = torch.rand(batch_size, m, input_dim, device=device)
+    # Generate epsilons from standard Gaussian: (batch_size, m, input_dim)
+    epsilons = torch.randn(batch_size, m, input_dim, device=device)
     g_eps = g(epsilons.view(-1, input_dim)).view(batch_size, m, output_dim)
 
     # term1: ||X_i - g(eps)|| averaged over m

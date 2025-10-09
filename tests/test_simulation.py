@@ -41,6 +41,7 @@ def test_training_params():
         'batch_size': 32,
         'learning_rate': 1e-3,
         'patience': 3,
+        'input_dim': 2,  # Small input_dim for fast testing
     }
 
 
@@ -378,30 +379,85 @@ class TestConvenienceFunctions:
         assert len(results_df) == 6
     
     def test_run_full_simulation_returns_tuple(self):
-        results_df, summary_df = run_full_simulation(
-            n_replications=1,
-            sample_sizes=[50],
-            verbose=False,
-            save_results=False
+        # Override with small input_dim for testing
+        from simulation import SimulationExperiment
+        from dgps import (
+            NormalGenerator, ExponentialGenerator, UniformGenerator,
+            LognormalGenerator, ChiSquareGenerator
         )
+        
+        generators = [
+            NormalGenerator(loc=0, scale=1),
+            ExponentialGenerator(scale=1),
+            UniformGenerator(low=0, high=2),
+            LognormalGenerator(mean=0, sigma=1),
+            ChiSquareGenerator(df=5),
+        ]
+        
+        training_params = {
+            'num_epochs': 5,
+            'batch_size': 32,
+            'learning_rate': 1e-3,
+            'patience': 3,
+            'input_dim': 2,  # Small for testing
+        }
+        
+        sim = SimulationExperiment(
+            generators=generators,
+            sample_sizes=[50],
+            n_replications=1,
+            training_params=training_params,
+            save_results=False,
+            verbose=False
+        )
+        
+        results_df = sim.run_all_experiments()
+        summary_df = sim.summarize_results(results_df)
         
         assert isinstance(results_df, pd.DataFrame)
         assert isinstance(summary_df, pd.DataFrame)
     
     def test_run_full_simulation_has_all_generators(self):
-        results_df, summary_df = run_full_simulation(
-            n_replications=1,
-            sample_sizes=[50],
-            verbose=False,
-            save_results=False
+        # Override with small input_dim for testing
+        from simulation import SimulationExperiment
+        from dgps import (
+            NormalGenerator, ExponentialGenerator, UniformGenerator,
+            LognormalGenerator, ChiSquareGenerator
         )
+        
+        generators = [
+            NormalGenerator(loc=0, scale=1),
+            ExponentialGenerator(scale=1),
+            UniformGenerator(low=0, high=2),
+            LognormalGenerator(mean=0, sigma=1),
+            ChiSquareGenerator(df=5),
+        ]
+        
+        training_params = {
+            'num_epochs': 5,
+            'batch_size': 32,
+            'learning_rate': 1e-3,
+            'patience': 3,
+            'input_dim': 2,  # Small for testing
+        }
+        
+        sim = SimulationExperiment(
+            generators=generators,
+            sample_sizes=[50],
+            n_replications=1,
+            training_params=training_params,
+            save_results=False,
+            verbose=False
+        )
+        
+        results_df = sim.run_all_experiments()
         
         # Should have 5 generators × 1 sample size × 1 replication = 5 rows
         assert len(results_df) == 5
         
         # Check all generator types are present
-        generators = results_df['generator'].unique()
-        assert len(generators) == 5
+        generators_in_results = results_df['generator'].unique()
+        assert len(generators_in_results) == 5
 
 
 class TestIntegration:
