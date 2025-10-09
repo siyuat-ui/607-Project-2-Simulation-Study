@@ -1,67 +1,211 @@
-import torch
+"""Data generation classes for simulation studies.
+
+This module defines an abstract base class for data generators and provides
+concrete implementations for common distributions.
+"""
+
 import numpy as np
-import os
+from abc import ABC, abstractmethod
 
-device = (
-    torch.device("mps") if torch.backends.mps.is_available() 
-    else torch.device("cuda") if torch.cuda.is_available() 
-    else torch.device("cpu")
-)
 
-print("The current device is", device)
-
-def generate_data(n=2000, K=3, seed=123, save=False):
+class DataGenerator(ABC):
+    """Abstract base class for data generation.
+    
+    All data generators must implement three methods:
+    - generate(n): Create n samples from the distribution
+    - name(): Return a descriptive name for reporting
+    - null_value(): Return the true parameter value under H0
+    
+    This ensures all generators can be used interchangeably in simulation
+    studies without modifying the simulation code.
     """
-    Generate 2D Gaussian mixture data and save as a single CSV (optional).
     
-    Parameters:
-    - n: total number of samples
-    - K: number of Gaussian components
-    - seed: random seed for reproducibility
+    @abstractmethod
+    def generate(self, n, rng=None):
+        """Generate n samples from the distribution.
+        
+        Parameters
+        ----------
+        n : int
+            Number of samples to generate
+        rng : np.random.Generator, optional
+            Random number generator. If None, uses np.random.default_rng (no seed) 
+        
+        Returns
+        -------
+        np.ndarray
+            Array of n samples from the distribution
+        """
+        pass
     
-    Saves:
-    - data.csv : shape (n, 3) where columns are x1, x2, label
+    @property
+    @abstractmethod
+    def name(self):
+        """Return descriptive name of the distribution.
+        
+        Returns
+        -------
+        str
+            Human-readable name including parameter values
+        """
+        pass
+
+
+class NormalGenerator(DataGenerator):
+    """Generate data from a normal distribution.
+    
+    Parameters
+    ----------
+    loc : float, default=0
+        Mean of the distribution (location parameter)
+    scale : float, default=1
+        Standard deviation of the distribution (scale parameter)
+    
+    Examples
+    --------
+    >>> gen = NormalGenerator(loc=5, scale=2)
+    >>> data = gen.generate(100)
+    >>> gen.name()
+    'Normal(μ=5, σ=2)'
     """
-    torch.manual_seed(seed)
     
-    means = (torch.rand(K, 2, device=device) * 10 - 5)  # random in [-5, 5]
-    covs = torch.stack([torch.eye(2, device=device) for _ in range(K)])
-    weights = torch.ones(K, device=device) / K
-
-    counts = torch.multinomial(weights, n, replacement=True)
-    counts = torch.bincount(counts, minlength=K)
+    def __init__(self, loc=0, scale=1):
+        self.loc = loc
+        self.scale = scale
     
-    X_list = []
-    y_list = []
+    def generate(self, n, rng=None):
+        if rng is None:
+            rng = np.random.default_rng()
+        return rng.normal(self.loc, self.scale, n)
     
-    for k in range(K):
-        mean = means[k]
-        cov = covs[k]
-        L = torch.linalg.cholesky(cov)
-        z = torch.randn(counts[k], 2, device=device)
-        X_k = z @ L.T + mean
-        X_list.append(X_k)
-        y_list.append(torch.full((counts[k],), k, device=device, dtype=torch.long))
+    @property
+    def name(self):
+        return f"Normal(μ={self.loc}, σ={self.scale})"
 
-    X = torch.cat(X_list, dim=0)
-    y = torch.cat(y_list, dim=0)
+
+class ExponentialGenerator(DataGenerator):
+    """Generate data from an exponential distribution.
     
-    if not save:
-        return X, y
-
-    # Combine X and y into a single array (last column is label)
-    data = torch.cat([X, y.unsqueeze(1)], dim=1).cpu().numpy()
-
-    # Make sure save directory exists
-    save_dir="data/simulated"
-    os.makedirs(save_dir, exist_ok=True)
+    Parameters
+    ----------
+    scale : float, default=1
+        Scale parameter, which equals both the mean and standard deviation.
+        The rate parameter λ = 1/scale.
     
-    # Save to CSV with header
-    np.savetxt(os.path.join(save_dir, "data.csv"), data, delimiter=",", header="x1,x2,label", comments="", fmt=["%.5f","%.5f","%d"])
+    Examples
+    --------
+    >>> gen = ExponentialGenerator(scale=2)
+    >>> data = gen.generate(100)
+    >>> gen.name()
+    'Exponential(λ=0.50)'
+    """
     
-    print(f"Generated {n} samples with {K} classes saved to {save_dir}/data.csv")
+    def __init__(self, scale=1):
+        self.scale = scale
+    
+    def generate(self, n, rng=None):
+        if rng is None:
+            rng = np.random.default_rng()
+        return rng.exponential(self.scale, n)
+    
+    @property
+    def name(self):
+        return f"Exponential(λ={1/self.scale:.2f})"
 
-    return X, y
 
-# Example usage:
-generate_data(n=5000, K=4, save=True)
+class UniformGenerator(DataGenerator):
+    """Generate data from a uniform distribution.
+    
+    Parameters
+    ----------
+    low : float, default=0
+        Lower bound of the distribution
+    high : float, default=2
+        Upper bound of the distribution
+    
+    Examples
+    --------
+    >>> gen = UniformGenerator(low=0, high=10)
+    >>> data = gen.generate(100)
+    >>> gen.name
+    'Uniform(0, 10)'
+    """
+    
+    def __init__(self, low=0, high=2):
+        self.low = low
+        self.high = high
+    
+    def generate(self, n, rng=None):
+        if rng is None:
+            rng = np.random.default_rng()
+        return rng.uniform(self.low, self.high, n)
+    
+    @property
+    def name(self):
+        return f"Uniform({self.low}, {self.high})"
+
+
+class LognormalGenerator(DataGenerator):
+    """Generate data from a lognormal distribution.
+    
+    Parameters
+    ----------
+    mean : float, default=0
+        Mean of the underlying normal distribution (not the lognormal mean)
+    sigma : float, default=1
+        Standard deviation of the underlying normal distribution
+    
+    Notes
+    -----
+    The mean of the lognormal distribution is exp(mean + sigma²/2).
+    The median is exp(mean), which we use as the null value for location tests.
+    
+    Examples
+    --------
+    >>> gen = LognormalGenerator(mean=0, sigma=1)
+    >>> data = gen.generate(100)
+    >>> gen.name
+    'Lognormal(μ=0, σ=1)'
+    """
+    
+    def __init__(self, mean=0, sigma=1):
+        self.mean = mean
+        self.sigma = sigma
+    
+    def generate(self, n, rng=None):
+        if rng is None:
+            rng = np.random.default_rng()
+        return rng.lognormal(self.mean, self.sigma, n)
+    
+    @property
+    def name(self):
+        return f"Lognormal(μ={self.mean}, σ={self.sigma})"
+
+
+class ChiSquareGenerator(DataGenerator):
+    """Generate data from a chi-square distribution.
+    
+    Parameters
+    ----------
+    df : int, default=5
+        Degrees of freedom, which equals the mean of the distribution
+    
+    Examples
+    --------
+    >>> gen = ChiSquareGenerator(df=10)
+    >>> data = gen.generate(100)
+    >>> gen.name()
+    'ChiSquare(df=10)'
+    """
+    
+    def __init__(self, df=5):
+        self.df = df
+    
+    def generate(self, n, rng=None):
+        if rng is None:
+            rng = np.random.default_rng()
+        return rng.chisquare(self.df, n)
+    
+    @property
+    def name(self):
+        return f"ChiSquare(df={self.df})"
