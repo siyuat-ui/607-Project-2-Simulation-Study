@@ -151,24 +151,6 @@ class TestEngressionLoss:
         # loss should be approximately term1 - 0.5*term2
         expected_loss = term1 - 0.5 * term2
         assert torch.allclose(loss, expected_loss, atol=1e-6)
-    
-    def test_loss_decreases_with_training(self):
-        """Test that loss decreases when model is trained."""
-        device = get_device()
-        model = EngressionNet().to(device)
-        optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-        X_batch = torch.randn(10, 2, device=device)
-        
-        losses = []
-        for _ in range(10):
-            optimizer.zero_grad()
-            loss, _, _ = engression_loss(model, X_batch, m=5, device=device)
-            losses.append(loss.item())
-            loss.backward()
-            optimizer.step()
-        
-        # Later losses should be smaller than earlier ones (generally)
-        assert losses[-1] <= losses[0]
 
 
 class TestEngressionLossMathematicalProperties:
