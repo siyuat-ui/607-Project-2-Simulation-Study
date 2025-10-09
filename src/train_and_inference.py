@@ -151,7 +151,7 @@ def generate_samples(model, num_samples=1000, input_dim=2, device=None):
     input_dim : int, default=2
         Dimension of the epsilon (uniform random) input
     device : torch.device, optional
-        Device for computation. If None, uses get_device()
+        Device for computation. If None, infers from model's device
         
     Returns
     -------
@@ -159,7 +159,8 @@ def generate_samples(model, num_samples=1000, input_dim=2, device=None):
         Generated samples of shape (num_samples, output_dim)
     """
     if device is None:
-        device = get_device()
+        # Infer device from model's first parameter
+        device = next(model.parameters()).device
     
     model.eval()
     eps = torch.rand(num_samples, input_dim, device=device)
