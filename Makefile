@@ -32,14 +32,9 @@ analyze:
 # Create all visualizations
 figures:
 	@echo "=========================================="
-	@echo "Generating figures..."
+	@echo "Generating analysis figures..."
 	@echo "=========================================="
-	@if [ -d results/figures ]; then \
-		echo "Figures directory: results/figures/"; \
-		ls -lh results/figures/*.png 2>/dev/null | wc -l | xargs echo "Total figures:"; \
-	else \
-		echo "No figures directory found. Run make simulate first."; \
-	fi
+	python src/analyze_results.py
 
 # Remove generated files
 clean:
