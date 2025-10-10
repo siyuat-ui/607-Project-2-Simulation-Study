@@ -30,7 +30,7 @@ $$
 \tilde{g} \in \mathop{\arg\min}_{g} ~ \mathcal{L}_{engression}(g).
 $$
 
-In fact, for any $g$ with $\mathbb{P} \left\{ g(\epsilon) \neq \tilde{g}(\epsilon) \right\} > 0$, it holds that $\mathcal{L}_{engression}(\tilde{g}) < \mathcal{L}_{engression}(g)$.
+In fact, for any $g$ with $\mathbb{P} \{ g(\epsilon) \neq \tilde{g}(\epsilon) \} > 0$, it holds that $\mathcal{L}_{engression}(\tilde{g}) < \mathcal{L}_{engression}(g)$.
 
 Given a training set $\{X_i\}_{i=1}^n$, where $X_1, \ldots, X_n \overset{i.i.d.}{\sim} X$, we can define the empirical version of engression as
 
@@ -44,7 +44,7 @@ $$
 \hat{\mathcal{L}}_{engression}(g) = \frac{1}{n} \sum_{i=1}^n \left[ \frac{1}{m} \sum_{j=1}^m \lVert X_i - g(\epsilon_{i,j}) \rVert_2 - \frac{1}{2m(m-1)} \sum_{j=1}^{m} \sum_{j\prime =1}^{m} \lVert g(\epsilon_{i,j}) - g(\epsilon_{i,j\prime}) \rVert_2 \right].
 $$
 
-Note that for each $X_i$, we generate $m$ variants $\left\{ g(\epsilon_{i,j}) \right\}_{j=1}^m$ to ensure that the empirical loss provides a good estimate of the population loss.
+Note that for each $X_i$, we generate $m$ variants $\{ g(\epsilon_{i,j}) \}_{j=1}^m$ to ensure that the empirical loss provides a good estimate of the population loss.
 
 For simplicity, we consider only the case $d=1$ in this simulation study; that is, $X$ is an one-dimensional random variable.
 
