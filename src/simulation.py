@@ -22,6 +22,12 @@ from train_and_inference import train_and_generate
 from metrics import compute_all_metrics
 from visualizations import plot_all_visualizations
 
+try:
+    from tqdm import tqdm
+    TQDM_AVAILABLE = True
+except ImportError:
+    TQDM_AVAILABLE = False
+
 
 class SimulationExperiment:
     """Class to orchestrate simulation experiments.

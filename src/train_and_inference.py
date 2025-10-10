@@ -9,6 +9,12 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 from methods import EngressionNet, engression_loss, get_device
 
+try:
+    from tqdm import tqdm
+    TQDM_AVAILABLE = True
+except ImportError:
+    TQDM_AVAILABLE = False
+
 
 class EngressionTrainer:
     """Trainer for EngressionNet models with early stopping."""

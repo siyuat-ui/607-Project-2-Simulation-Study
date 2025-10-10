@@ -15,7 +15,7 @@ simulate:
 	@echo "=========================================="
 	@echo "Running simulation..."
 	@echo "=========================================="
-	python src/main.py --mode full --replications 2 --sizes 500 1000
+	python src/main.py --mode full --replications 5 --sizes 100 500 1000
 	@echo "Simulation complete!"
 
 # Process raw results and generate summary statistics
