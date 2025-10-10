@@ -60,3 +60,9 @@ My choice is option B - original simulation.
 **Medium-term** (3-6 months): High dimensions, theoretical analysis
 
 **Long-term** (1+ year): Real data applications, adaptive architectures, federated learning
+
+## Most challenging parts
+Honestly speaking, with the help of GenAI, writing simple code should not be too hard or exhausting. One challenge I would like to emphasize is our interaction with GenAI. For example, sometimes it takes multiple rounds of clarification to make GenAI fully understand the task or the expected output format. It also requires careful prompting and verification to ensure that the generated code or explanation is both correct and relevant. Learning how to communicate effectively with GenAI has therefore become an important skill in itself.
+
+## Am I confident in my results?
+I am quite confident. Honestly speaking, I am currently conducting research on synthetic data generation using the Engression idea and have already run many simulations on random vectors, time series, and longitudinal data. Therefore, I know that this idea is applicable in a broader sense.
