@@ -168,13 +168,6 @@ Percentage of replications achieving MMD < 0.1 (our success threshold). Green ce
 
 Performance improvement as sample size increases from 100 to 1000. All distributions benefit from larger sample sizes, with diminishing returns beyond n=500-1000.
 
-**Success Rate**: 
-- Normal and Uniform distributions: >90% of runs achieve MMD < 0.1
-- Exponential and Chi-Square: ~60-70% success rate
-- Lognormal: ~40-50% success rate (most challenging)
-
-**Sample Size Effect**: Increasing from $n=100$ to $n=1000$ reduces MMD by approximately 40-60% across all distributions.
-
 ## Methodology
 
 See `ADEMP.md` for complete methodology including:
