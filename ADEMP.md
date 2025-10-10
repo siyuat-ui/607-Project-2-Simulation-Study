@@ -133,20 +133,21 @@ After training, generate $k=1000$ samples by:
    - Lower is better (0 = perfect match)
 
 2. **Two-Sample Test p-values**
-   - Kolmogorov-Smirnov test for each dimension
+   - Kolmogorov-Smirnov test for each dimension (although this study focuses on $d=1$, we include this to preserve the possibility of future extensions)
    - Reports: min p-value, mean p-value, number of rejections at $\alpha = 0.05$
    - **Target**: Mean p-value > 0.05 (fail to reject $H_0$: same distribution)
    - Higher p-values indicate better match
 
 3. **Mean Distance**
-   - $L_2$ distance between sample means: $\vert \hat{\mu}_x - \hat{\mu}_g \vert$
+   - $L_2$ distance between sample means: $\lVert \hat{\mu}_x - \hat{\mu}_g \rVert_2$ (which is a just scaler for $d=1$)
    - **Target**: < 0.1 for standardized data
    - Measures first moment preservation
 
 **Secondary Metrics:**
 
 4. **Covariance Distance**
-   - Frobenius norm: $\lvert \widehat{\text{Var}(X)} - \widehat{\text{Var}(g(\epsilon))} \rvert$
+   - Frobenius norm: $\lVert \widehat{\text{Cov}(X)} - \widehat{\text{Cov}(g(\epsilon))} \rVert_F$ (which is a just scaler for $d=1$)
+   - Trace: $\lvert \text{tr} \left( \widehat{\text{Cov}(X)} - \widehat{\text{Cov}(g(\epsilon))} \right) \rvert$ (which is a just scaler for $d=1$)
    - Measures second moment preservation
 
 5. **Training Efficiency**
