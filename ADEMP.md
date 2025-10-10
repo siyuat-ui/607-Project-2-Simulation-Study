@@ -1,5 +1,3 @@
-# Simulation Study: Engression-Based Synthetic Data Generation
-
 ## ADEMP Framework
 
 ### A - Aims
@@ -32,7 +30,7 @@ $$
 \tilde{g} \in \mathop{\arg\min}_{g} ~ \mathcal{L}_{engression}(g).
 $$
 
-In fact, for any $g$ with $\mathbb{P}\left\{ g(\epsilon) \neq \tilde{g}(\epsilon) \right\} > 0$, it holds that $\mathcal{L}_{engression}(\tilde{g}) < \mathcal{L}_{engression}(g)$.
+In fact, for any $g$ with $\mathbb{P} \left\{ g(\epsilon) \neq \tilde{g}(\epsilon) \right\} > 0$, it holds that $\mathcal{L}_{engression}(\tilde{g}) < \mathcal{L}_{engression}(g)$.
 
 Given a training set $\{X_i\}_{i=1}^n$, where $X_1, \ldots, X_n \overset{i.i.d.}{\sim} X$, we can define the empirical version of engression as
 
