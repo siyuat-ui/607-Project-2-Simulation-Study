@@ -168,6 +168,10 @@ Percentage of replications achieving MMD < 0.1 (our success threshold). Green ce
 
 Performance improvement as sample size increases from 100 to 1000. All distributions benefit from larger sample sizes, with diminishing returns beyond n=500-1000.
 
+### Summary of Key Findings
+
+The Engression idea can effectively generate 1D synthetic samples that match original distributions (MMD < 0.1) for 60-90% of cases depending on distribution type.
+
 ## Methodology
 
 See `ADEMP.md` for complete methodology including:
