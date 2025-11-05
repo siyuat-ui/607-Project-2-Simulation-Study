@@ -48,23 +48,19 @@ This project evaluates the effectiveness of engression-based neural networks for
 
 ### Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/siyuat-ui/607-Project-2-Simulation-Study.git
-   cd 607-Project-2-Simulation-Study
-   ```
+```bash
+# 1. Clone the repository
+git clone https://github.com/siyuat-ui/607-Project-2-Simulation-Study.git
+cd 607-Project-2-Simulation-Study
 
-2. **Create virtual environment** (recommended):
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+# 2. Create virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements-macbook.txt # On Macbook
-   pip install -r requirements-windows.txt # On Windows
-   ```
+# 3. Install dependencies
+pip install -r requirements-macbook.txt # On Macbook
+pip install -r requirements-windows.txt # On Windows
+```
 
 ### Verify Installation
 
